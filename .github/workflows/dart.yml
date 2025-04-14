@@ -14,29 +14,40 @@ jobs:
         with:
           channel: 'stable'
           architecture: x64
-      - run: flutter pub get
       
+      - name: Setup Flutter
+        run: |
+          cd giant_arrow
+          flutter pub get
+          flutter doctor
+          flutter clean
+          flutter pub get
 
-      - run: pod repo update
-        working-directory: ios
+      - name: Update CocoaPods
+        run: pod repo update
+        working-directory: giant_arrow/ios
 
-      - run: flutter build ios --release --no-codesign
+      - name: Build iOS
+        run: flutter build ios --release --no-codesign
+        working-directory: giant_arrow
 
-      - run: mkdir Payload
-        working-directory: build/ios/iphoneos
+      - name: Create Payload Directory
+        run: mkdir -p Payload
+        working-directory: giant_arrow/build/ios/iphoneos
 
-      - run: mv Runner.app/ Payload
-        working-directory: build/ios/iphoneos
+      - name: Move Runner.app to Payload
+        run: mv Runner.app/ Payload
+        working-directory: giant_arrow/build/ios/iphoneos
 
-      - name: Zip output
+      - name: Create IPA
         run: zip -qq -r -9 FlutterIpaExport.ipa Payload
-        working-directory: build/ios/iphoneos
+        working-directory: giant_arrow/build/ios/iphoneos
 
-      - name: Upload binaries to release
+      - name: Upload IPA to Release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: build/ios/iphoneos/FlutterIpaExport.ipa
+          file: giant_arrow/build/ios/iphoneos/FlutterIpaExport.ipa
           tag: v1.0
           overwrite: true
-          body: "This is first release"
+          body: "iOS build release"
