@@ -1,0 +1,1 @@
+  balanceModel.addMoney(mcqs.toDouble(), 'MCQs attempted'); 
